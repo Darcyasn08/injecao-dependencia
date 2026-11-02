@@ -1,8 +1,6 @@
 # Atividade: injeção de dependência
 
-Este projeto permite cadastrar alunos, cursos e matrículas por uma API Express com TypeScript e PostgreSQL. O objetivo da atividade é **implementar injeção de dependência nos módulos de cursos (`courses`) e matrículas (`enrollments`)**, usando o módulo de alunos (`students`) como referência.
-
-O projeto já funciona antes da atividade. Sua tarefa é mudar a maneira como os objetos recebem suas dependências, preservando o comportamento da aplicação.
+Este projeto permite cadastrar alunos, cursos e matrículas por uma API Express com TypeScript e PostgreSQL. O objetivo da aplicação é **implementar injeção de dependência nos módulos de cursos (`courses`) e matrículas (`enrollments`)**, usando o módulo de alunos (`students`) como referência.
 
 ## O que é injeção de dependência?
 
@@ -53,7 +51,7 @@ A dependência é fornecida quando os objetos são montados. A cada requisição
 | Repositório | Recebe o banco pelo contrato `Database`. | Importa e usa o `pool` diretamente. |
 | Composição em `app.ts` | Conecta banco, repositório, serviço e rotas. | Chama as funções de rotas sem fornecer dependências. |
 
-Essa diferença é intencional. Ao concluir a atividade, cursos e matrículas devem seguir o mesmo padrão de alunos.
+Agora após as alterações, cursos e matrículas seguem o mesmo padrão de alunos
 
 ## Diagramas de classes: estrutura atual
 
@@ -242,29 +240,8 @@ sequenceDiagram
     end
 ```
 
-As chamadas HTTP percorrem camadas semelhantes nos dois módulos. A diferença está em **quem fornece as dependências** na inicialização. Após a refatoração de cursos, a montagem deve se parecer com a de alunos; os resultados HTTP devem continuar iguais.
 
 Os diagramas omitem os caminhos de erro para facilitar a leitura. Entradas inválidas geram `400`, registros ausentes geram `404` e conflitos de unicidade geram `409`. Os erros seguem para o tratador de `app.ts`, que monta a resposta JSON.
-
-## Sua tarefa
-
-Refatore `courses` e `enrollments` seguindo o exemplo de `students`:
-
-1. **Defina os contratos dos repositórios.** Crie `CourseRepository` e `EnrollmentRepository` com as operações existentes e seus tipos de entrada e retorno. As classes PostgreSQL devem implementar esses contratos.
-2. **Injete o banco nos repositórios.** Receba `Database` pelo construtor e substitua o acesso ao `pool` importado pelo uso da dependência recebida. Reutilize o contrato de `database/connection.ts`.
-3. **Injete os repositórios nos serviços.** Receba os respectivos contratos pelo construtor e remova a criação dos repositórios dentro dos serviços.
-4. **Injete os serviços nas rotas.** Faça `coursesRoutes` e `enrollmentsRoutes` receberem seus serviços por parâmetro, como `studentsRoutes`.
-5. **Monte as dependências em `app.ts`.** Use o banco recebido por `createApp(db)` para criar os repositórios, forneça-os aos serviços e forneça os serviços às rotas.
-
-Preserve o módulo `students` como referência. Mantenha os endpoints, os corpos JSON, as validações, os códigos HTTP e as consultas SQL. A atividade não exige adicionar um framework de injeção.
-
-### Critérios de conclusão
-
-- Os serviços de cursos e matrículas recebem contratos de repositório e não instanciam repositórios concretos.
-- Os repositórios recebem `Database` e não importam o `pool` diretamente.
-- As funções de rotas recebem os serviços e não os instanciam.
-- A montagem de ambos os módulos fica em `app.ts`, usando o mesmo `db` recebido pela aplicação.
-- A verificação de tipos e a compilação passam, e as operações da API continuam funcionando.
 
 
 ## Executar a aplicação
